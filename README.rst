@@ -1,0 +1,53 @@
+Webmention static comment plugin for Pelican
+--------------------------------------------
+
+This plugin is to be used or tested with webmention.io JF2 endpoint.
+The output from that endpint should be in JF2 format.
+
+This plugin references multiple projects related to Webmentions and Pelican plugin:
+
+- `Gist from Stuart Langridge <https://gist.github.com/stuartlangridge/ef08d5e1737181e2bee7>`__
+- `pelican-webmention plugin by Desmond Rivet <https://github.com/drivet/pelican-webmentio>`__
+- `Webmention.js by Fluffy <https://github.com/PlaidWeb/webmention.js/blob/master/static/webmention.js>`__
+- `Mention Tech by Kevin Marks <https://github.com/kevinmarks/mentiontech>`__
+- `Pelican Plugins <https://github.com/getpelican/pelican-plugins/>`__
+
+Options
+-------
+
+PLUGINS += ['webmention_static_kappa']
+WEBMENTION_USERNAME = 'Update to your username in webmention.io'
+WEBMENTION_FETCH_URL = 'https://webmention.io/'+WEBMENTION_USERNAME+'/webmention'
+WEBMENTION_SITEURL = 'Usually same as SITEURL'
+WEBMENTION_IO_JF2_URL = 'https://webmention.io/api/mentions.jf2'
+WEBMENTION_IO_MAX_ITEMS = 50
+
+Sample template
+---------------
+
+You probably need a template to use display the output from the plugin.
+Below is just an example, you should add styling and change the layout.
+
+.. code-block:: html+jinja
+
+   {% if article.webmentions.mentioned %}
+       <p> List of mentions: </p>
+     {% for item_mentioned in article.webmentions.mentioned %}
+        <a href="{{ item_mentioned['wm-target'] }}"
+           rel="nofollow noopener noreferrer ugc"
+           title="{{ item_mentioned['author_name'] }} {{ item_mentioned['reaction'] }}">
+        {% if item_mentioned['author_photo'] %}
+           <img src="{{ item_mentioned['author_photo'] }}">
+        {% endif %}
+        {{ item_mentioned['icon'] }}{{ item_mentioned['author_name'] }}
+        </a> : {{ item_mentioned['name'] }}
+     {% endfor %}
+   {% endif %}
+
+Notes
+-----
+This plugin is not perfect. There are areas for improvement:
+
+- Pagination. Useful if there are lots of Webmentions to display.
+- There is no caching, so it would connect to the Webmention endpoint for every rebuilt
+  of the static website.
