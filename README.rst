@@ -33,7 +33,7 @@ Below is just an example, you should add styling and change the layout.
    {% if article.webmentions.mentioned %}
        <p> List of mentions: </p>
      {% for item_mentioned in article.webmentions.mentioned %}
-        <a href="{{ item_mentioned['wm-target'] }}"
+        <a href="{{ item_mentioned['wm-source'] }}"
            rel="nofollow noopener noreferrer ugc"
            title="{{ item_mentioned['author_name'] }} {{ item_mentioned['reaction'] }}">
         {% if item_mentioned['author_photo'] %}
