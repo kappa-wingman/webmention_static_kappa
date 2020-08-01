@@ -13,15 +13,34 @@ def article_url(content):
     return WEBMENTION_SITEURL + "/" + content.url
 
 def initialize_module(pelican):
-    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS
+    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS, WEBMENTION_IO_API_KEY, WEBMENTION_IO_CACHE_FILENAME, WEBMENTION_IO_DOMAIN, WEBMENTION_IO_UPDATE_CACHE
 
-    for parameter in ['WEBMENTION_IO_JF2_URL', 'WEBMENTION_SITEURL', 'WEBMENTION_IO_MAX_ITEMS']:
+    for parameter in [ 'WEBMENTION_IO_JF2_URL', 'WEBMENTION_SITEURL',
+    'WEBMENTION_IO_MAX_ITEMS', 'WEBMENTION_IO_API_KEY',
+    'WEBMENTION_IO_CACHE_FILENAME', 'WEBMENTION_IO_DOMAIN',
+    'WEBMENTION_IO_UPDATE_CACHE', ]:
         if not parameter in pelican.settings.keys():
             print ("webmention_static error: no " + parameter + "defined in settings")
         else:
             globals()[parameter] = pelican.settings.get(parameter)
             ##globals()[parameter] = pelican.settings[parameter]
             ##print (globals()[parameter])
+    if WEBMENTION_IO_UPDATE_CACHE:
+        update_cache ()
+
+def update_cache ():
+    try:
+        ##https://webmention.io/api/mentions.jf2?target=
+        response = urllib.request.urlopen(WEBMENTION_IO_JF2_URL
+            + "?domain=" + WEBMENTION_IO_DOMAIN
+            + "&token=" + WEBMENTION_IO_API_KEY)
+        data = response.read().decode("utf-8")
+        ##data = response.get()
+        file = open(WEBMENTION_IO_CACHE_FILENAME, "w+")
+        file.write(data)
+        file.close()
+    except:
+        raise
 
 class Discussion(object):
     def __init__(self):
@@ -46,17 +65,26 @@ def fetch_webmentions(generator, content):
     print ("Fetching webmentions for local article:", target_url)
 
     try:
+        file = open(WEBMENTION_IO_CACHE_FILENAME, "r")
+        j = json.load(file)
+        file.close()
+
+        """
+        # use this section if query webmention.io directly
         ##https://webmention.io/api/mentions.jf2?target=
         response = urllib.request.urlopen(WEBMENTION_IO_JF2_URL
         + "?per-page=" + str(WEBMENTION_IO_MAX_ITEMS)
         + "&target=" + target_url)
         data = response.read().decode("utf-8")
         j = json.loads(data)
+        """
     except:
         raise
     ##print (j['children'])
     ##for x in j:
+    #for x in j['children']:
     for x in j['children']:
+      if ( x.get("wm-target", "") == target_url ):
         wm = {
             "wm-property": x.get("wm-property", ""),
             "published": x.get("published", ""),

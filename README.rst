@@ -15,12 +15,19 @@ This plugin references multiple projects related to Webmentions and Pelican plug
 Options
 -------
 
-PLUGINS += ['webmention_static_kappa']
-WEBMENTION_USERNAME = 'Update to your username in webmention.io'
-WEBMENTION_FETCH_URL = 'https://webmention.io/'+WEBMENTION_USERNAME+'/webmention'
-WEBMENTION_SITEURL = 'Usually same as SITEURL'
-WEBMENTION_IO_JF2_URL = 'https://webmention.io/api/mentions.jf2'
-WEBMENTION_IO_MAX_ITEMS = 50
+- PLUGINS += ['webmention_static_kappa']
+- WEBMENTION_USERNAME = 'Update to your username in webmention.io'
+- WEBMENTION_FETCH_URL = 'https://webmention.io/'+WEBMENTION_USERNAME+'/webmention'
+- WEBMENTION_SITEURL = 'Usually same as SITEURL'
+- WEBMENTION_IO_JF2_URL = 'https://webmention.io/api/mentions.jf2'
+- # MAX_ITEMS only effective for old version (non cache)
+  # New version get all the Webmentions for the domain in one single file
+  WEBMENTION_IO_MAX_ITEMS = 50
+- # You need to create the cache directory manually
+  # WARNING, it would overwrite the file in below when static pages start to generate
+  WEBMENTION_IO_CACHE_FILENAME = './webmention-cache/cache.json'
+- WEBMENTION_IO_DOMAIN = 'Replace by the hostname of your website here, no need to put https://'
+- WEBMENTION_IO_UPDATE_CACHE = True
 
 Sample template
 ---------------
@@ -46,8 +53,7 @@ Below is just an example, you should add styling and change the layout.
 
 Notes
 -----
+
 This plugin is not perfect. There are areas for improvement:
 
 - Pagination. Useful if there are lots of Webmentions to display.
-- There is no caching, so it would connect to the Webmention endpoint for every rebuilt
-  of the static website.
