@@ -89,11 +89,13 @@ def fetch_webmentions(generator, content):
         """
     except:
         raise
+    current_Item_Count = 0
     ##print (j['children'])
     ##for x in j:
     #for x in j['children']:
     for x in j['children']:
       if ( x.get("wm-target", "") == target_url ):
+        if (current_Item_Count >= WEBMENTION_IO_MAX_ITEMS) : break
         wm = {
             "wm-property": x.get("wm-property", ""),
             "published": x.get("published", ""),
@@ -171,6 +173,7 @@ def fetch_webmentions(generator, content):
             comment["reaction"] = 'unclassified'
             comment["icon"] = '❔'
             content.webmentions.unclassified.append(comment)
+        current_Item_Count += 1
 
 def register():
     signals.initialized.connect(initialize_module)

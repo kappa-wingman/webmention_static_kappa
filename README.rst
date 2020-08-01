@@ -20,8 +20,9 @@ Options
 - WEBMENTION_FETCH_URL = 'https://webmention.io/'+WEBMENTION_USERNAME+'/webmention'
 - WEBMENTION_SITEURL = 'Usually same as SITEURL'
 - WEBMENTION_IO_JF2_URL = 'https://webmention.io/api/mentions.jf2'
-- # MAX_ITEMS only effective for old version (non cache)
-  # New version get all the Webmentions for the domain in one single file
+- # MAX_ITEMS was effective for old version (non cache version)
+  # New version of this plugin fetches all the Webmentions for the domain in one single file
+  # But this option also control the maximum items to display
   WEBMENTION_IO_MAX_ITEMS = 50
 - # You need to create the cache directory manually
   # WARNING, it would overwrite the file in below when static pages start to generate
