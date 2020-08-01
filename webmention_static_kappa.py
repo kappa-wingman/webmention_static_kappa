@@ -25,6 +25,15 @@ def initialize_module(pelican):
             globals()[parameter] = pelican.settings.get(parameter)
             ##globals()[parameter] = pelican.settings[parameter]
             ##print (globals()[parameter])
+
+    global rsvpIcon
+    rsvpIcon = {
+        'yes': '✅',
+        'no': '❌',
+        'interested': '💡',
+        'maybe': '❔',
+    } 
+
     if WEBMENTION_IO_UPDATE_CACHE:
         update_cache ()
 
@@ -111,7 +120,7 @@ def fetch_webmentions(generator, content):
         if wm["published"] is None:
             wm["published"] = wm["wm-received"]
 
-        print (wm["wm-property"], wm["name"], wm["author_name"], wm["author_url"], wm["url"] , wm["published"])
+        print (wm["wm-property"], wm["name"], wm["author_name"], wm["author_url"], wm["wm-source"] , wm["published"])
 
         comment = {
         'wm-property': wm["wm-property"],
@@ -154,12 +163,6 @@ def fetch_webmentions(generator, content):
             comment["icon"] = '👣'
             content.webmentions.followed.append(comment)
         elif wm["wm-property"] == 'rsvp':
-            rsvpIcon = {
-                'yes': '✅',
-                'no': '❌',
-                'interested': '💡',
-                'maybe': '❔',
-            } 
             comment["reaction"] = wm["rsvp"]
             comment["icon"] = rsvpIcon[wm["rsvp"]]
             content.webmentions.rsvp.append(comment)
