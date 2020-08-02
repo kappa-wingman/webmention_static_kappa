@@ -4,21 +4,29 @@ from pelican import signals, contents
 import os, urllib.request, json, datetime
 from urllib.parse import urlparse
 
+#from django.core.paginator import Paginator
+import django.core.paginator
+
+import sys
+
 """
   This plugin is for using with webmention.io jf2 API
 """
+
+#PROCESS = ['articles', 'pages', 'drafts']
+#PROCESS = ['articles']
 
 def article_url(content):
     #return content.settings[SITEURL]+'/'+content.url
     return WEBMENTION_SITEURL + "/" + content.url
 
 def initialize_module(pelican):
-    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS, WEBMENTION_IO_API_KEY, WEBMENTION_IO_CACHE_FILENAME, WEBMENTION_IO_DOMAIN, WEBMENTION_IO_UPDATE_CACHE
+    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS, WEBMENTION_IO_API_KEY, WEBMENTION_IO_CACHE_FILENAME, WEBMENTION_IO_DOMAIN, WEBMENTION_IO_UPDATE_CACHE, WEBMENTION_IO_REPLIED_PAGINATION_SIZE
 
     for parameter in [ 'WEBMENTION_IO_JF2_URL', 'WEBMENTION_SITEURL',
     'WEBMENTION_IO_MAX_ITEMS', 'WEBMENTION_IO_API_KEY',
     'WEBMENTION_IO_CACHE_FILENAME', 'WEBMENTION_IO_DOMAIN',
-    'WEBMENTION_IO_UPDATE_CACHE', ]:
+    'WEBMENTION_IO_UPDATE_CACHE', 'WEBMENTION_IO_REPLIED_PAGINATION_SIZE', ]:
         if not parameter in pelican.settings.keys():
             print ("webmention_static error: no " + parameter + "defined in settings")
         else:
@@ -56,6 +64,8 @@ class Discussion(object):
         self.liked = []
         self.mentioned = []
         self.replied = []
+        self.replied_paged = dict()
+        self.replied_num_pages = 0
         self.reposted = []
         self.bookmarked = []
         self.followed = []
@@ -175,8 +185,54 @@ def fetch_webmentions(generator, content):
             content.webmentions.unclassified.append(comment)
         current_Item_Count += 1
 
+#def final_update(generator, content):
+    if content.webmentions.replied and WEBMENTION_IO_REPLIED_PAGINATION_SIZE > 0:
+      # Get all attributes from the generator that are articles or pages
+      #posts = [
+      #  getattr(generator, attr, None) for attr in PROCESS
+      #  if getattr(generator, attr, None) is not None]
+      page_size = WEBMENTION_IO_REPLIED_PAGINATION_SIZE
+      paginator = django.core.paginator.Paginator(content.webmentions.replied, page_size)
+      content.webmentions.replied_num_pages = paginator.num_pages
+      print ("DEBUG, paginator count : ", paginator.count)
+
+      page_no = 0
+      current_item_no = 0
+      for i in range (paginator.num_pages):
+        # passing page_no, starting with 1 instead of 0
+        page_no = i + 1
+        for j in range (page_size):
+          if page_no * (j+1) > paginator.count : break
+          ## if use pop, the original content.webmentions.replied list would be empty
+          ##content.webmentions.replied_paged.setdefault(page_no, []).append(content.webmentions.replied.pop())
+          content.webmentions.replied_paged.setdefault(page_no, []).append(content.webmentions.replied[current_item_no])
+          current_item_no += 1
+          ##content.webmentions.replied_paged.append([content.webmentions.replied[0]])
+        paged_json_file_path = os.path.join(generator.output_path, "wm-replied-"+str(page_no)+".json" )
+        #print ("DEBUG2: ", paged_json_file_path)
+        try:
+          # Get the full path to the original source file
+          source_out = os.path.join(
+            content.settings['OUTPUT_PATH'], content.save_as
+          )
+          # Get the path to the original source file
+          source_out_path = os.path.split(source_out)[0]
+          # Create 'copy to' destination for writing later
+          paged_json_file_path = os.path.join(
+            source_out_path, "wm-replied-"+str(page_no)+".json"
+          )
+          os.makedirs(source_out_path, 0o775, exist_ok=True)
+          file = open(paged_json_file_path, "w+")
+          json.dump(content.webmentions.replied_paged.setdefault(page_no, []), file)
+          file.close()
+        except:
+          raise
+      ## start with 1 (page no)
+      ##print ("DEBUG3: ", content.webmentions.replied_paged[1]);
+
 def register():
     signals.initialized.connect(initialize_module)
     signals.article_generator_context.connect(setup_webmentions)
-    ##signals.article_generator_finalized.connect(fetch_webmentions)
     signals.article_generator_write_article.connect(fetch_webmentions)
+    ##signals.article_writer_finalized.connect(final_update)
+    ##signals.article_generator_finalized.connect(final_update)

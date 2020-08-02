@@ -34,6 +34,7 @@ Options
 
 - WEBMENTION_IO_DOMAIN = 'Replace by the hostname of your website here, no need to put https://'
 - WEBMENTION_IO_UPDATE_CACHE = True
+- WEBMENTION_IO_REPLIED_PAGINATION_SIZE - For paging replies, WIP
 
 Sample template
 ---------------
