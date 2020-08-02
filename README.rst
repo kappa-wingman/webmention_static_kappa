@@ -20,13 +20,18 @@ Options
 - WEBMENTION_FETCH_URL = 'https://webmention.io/'+WEBMENTION_USERNAME+'/webmention'
 - WEBMENTION_SITEURL = 'Usually same as SITEURL'
 - WEBMENTION_IO_JF2_URL = 'https://webmention.io/api/mentions.jf2'
-- # MAX_ITEMS was effective for old version (non cache version)
-  # New version of this plugin fetches all the Webmentions for the domain in one single file
-  # But this option also control the maximum items to display
-  WEBMENTION_IO_MAX_ITEMS = 50
-- # You need to create the cache directory manually
-  # WARNING, it would overwrite the file in below when static pages start to generate
-  WEBMENTION_IO_CACHE_FILENAME = './webmention-cache/cache.json'
+- MAX_ITEMS was effective for old version (non cache version)
+
+  - New version of this plugin fetches all the Webmentions for the domain in one single file
+
+    But this option also control the maximum items to display
+  - WEBMENTION_IO_MAX_ITEMS = 50
+
+- You need to create the cache directory manually
+
+  - WARNING, it would overwrite the file in below when static pages start to generate
+  - WEBMENTION_IO_CACHE_FILENAME = './webmention-cache/cache.json'
+
 - WEBMENTION_IO_DOMAIN = 'Replace by the hostname of your website here, no need to put https://'
 - WEBMENTION_IO_UPDATE_CACHE = True
 
@@ -35,6 +40,7 @@ Sample template
 
 You probably need a template to use display the output from the plugin.
 Below is just an example, you should add styling and change the layout.
+Repeat for other items like articles.webmentions.liked and etc.
 
 .. code-block:: html+jinja
 
