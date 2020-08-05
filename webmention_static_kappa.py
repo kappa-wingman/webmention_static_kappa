@@ -107,6 +107,7 @@ def fetch_webmentions(generator, content):
       if ( x.get("wm-target", "") == target_url ):
         if (current_Item_Count >= WEBMENTION_IO_MAX_ITEMS) : break
         wm = {
+            "wm-id": x.get("wm-id", ""),
             "wm-property": x.get("wm-property", ""),
             "published": x.get("published", ""),
             "wm-received": x.get("wm-received", ""),
@@ -135,6 +136,7 @@ def fetch_webmentions(generator, content):
         print (wm["wm-property"], wm["name"], wm["author_name"], wm["author_url"], wm["wm-source"] , wm["published"])
 
         comment = {
+        'wm-id': wm["wm-id"],
         'wm-property': wm["wm-property"],
         'published': wm["published"],
         'wm-received': wm["wm-received"],
