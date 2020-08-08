@@ -165,7 +165,7 @@ def fetch_webmentions(generator, content):
             comment["icon"] = '📩'
             content.webmentions.replied.append(comment)
         elif wm["wm-property"] == 'repost-of':
-            comment["reaction"] = 'replied'
+            comment["reaction"] = 'reposted'
             comment["icon"] = '🔄'
             content.webmentions.reposted.append(comment)
         elif wm["wm-property"] == 'bookmark-of':
