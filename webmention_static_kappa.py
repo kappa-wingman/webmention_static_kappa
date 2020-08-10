@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from pelican import signals, contents
-import os, urllib.request, json, datetime
+import os, urllib.request, datetime, sys
+
+import json
+from collections import OrderedDict
+
 from urllib.parse import urlparse
 
 #from django.core.paginator import Paginator
 import django.core.paginator
-
-import sys
 
 """
   This plugin is for using with webmention.io jf2 API
@@ -21,11 +23,12 @@ def article_url(content):
     return WEBMENTION_SITEURL + "/" + content.url
 
 def initialize_module(pelican):
-    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS, WEBMENTION_IO_API_KEY, WEBMENTION_IO_CACHE_FILENAME, WEBMENTION_IO_DOMAIN, WEBMENTION_IO_UPDATE_CACHE, WEBMENTION_IO_REPLIED_PAGINATION_SIZE
+    global WEBMENTION_IO_JF2_URL, WEBMENTION_SITEURL, WEBMENTION_IO_MAX_ITEMS, WEBMENTION_IO_API_KEY, WEBMENTION_IO_CACHE_FILENAME, WEBMENTION_IO_DOMAIN, WEBMENTION_IO_OVERWRITE_INITIAL_CACHE, WEBMENTION_IO_UPDATE_INITIAL_CACHE, WEBMENTION_IO_UPDATE_CACHE, WEBMENTION_IO_REPLIED_PAGINATION_SIZE
 
     for parameter in [ 'WEBMENTION_IO_JF2_URL', 'WEBMENTION_SITEURL',
     'WEBMENTION_IO_MAX_ITEMS', 'WEBMENTION_IO_API_KEY',
     'WEBMENTION_IO_CACHE_FILENAME', 'WEBMENTION_IO_DOMAIN',
+    'WEBMENTION_IO_OVERWRITE_INITIAL_CACHE', 'WEBMENTION_IO_UPDATE_INITIAL_CACHE',
     'WEBMENTION_IO_UPDATE_CACHE', 'WEBMENTION_IO_REPLIED_PAGINATION_SIZE', ]:
         if not parameter in pelican.settings.keys():
             print ("webmention_static error: no " + parameter + "defined in settings")
@@ -42,10 +45,13 @@ def initialize_module(pelican):
         'maybe': '❔',
     } 
 
-    if WEBMENTION_IO_UPDATE_CACHE:
-        update_cache ()
+    if WEBMENTION_IO_OVERWRITE_INITIAL_CACHE:
+        overwrite_initial_cache ()
 
-def update_cache ():
+    if WEBMENTION_IO_UPDATE_INITIAL_CACHE:
+        update_initial_cache ()
+
+def overwrite_initial_cache ():
     try:
         ##https://webmention.io/api/mentions.jf2?target=
         # FIXME, if not specify per-page, it only get a few recent records for a domain
@@ -61,6 +67,53 @@ def update_cache ():
         file.close()
     except:
         raise
+
+def update_initial_cache ():
+    try:
+        file = open(WEBMENTION_IO_CACHE_FILENAME, "r")
+        #cached_json = json.load(file, object_pairs_hook=OrderedDict)
+        cached_json = json.load(file)
+        file.close()
+    except:
+        raise
+
+    if cached_json is None:
+        cached_json = {}
+
+    try:
+        ##https://webmention.io/api/mentions.jf2?target=
+        # FIXME, if not specify per-page, it only get a few recent records for a domain
+        # Here, hardcoded to a large value but will have problem if the no of items get past this value
+        response = urllib.request.urlopen(WEBMENTION_IO_JF2_URL
+            + "?domain=" + WEBMENTION_IO_DOMAIN
+            + "&token=" + WEBMENTION_IO_API_KEY
+            + "&per-page=9999")
+        data = response.read().decode("utf-8")
+        #incoming_json = json.loads(data, object_pairs_hook=OrderedDict)
+        incoming_json = json.loads(data)
+    except:
+        raise
+    cached_json.update(incoming_json)
+    #print (cached_json)
+    try:
+        file = open(WEBMENTION_IO_CACHE_FILENAME, "w+")
+        json.dump(cached_json, file)
+        file.close()
+    except:
+        raise
+
+"""
+    # incomplete, not working
+def updateItem(cached_items, incoming_items):
+    new = []
+    seen = set()
+    for x in cached_items:
+      tupleOfItem = tuple(x.items())
+      if tupleOfItem not in seen:
+        yield x
+        seen.add(tupleOfItem)
+        new.append (x)
+"""
 
 class Discussion(object):
     def __init__(self):
