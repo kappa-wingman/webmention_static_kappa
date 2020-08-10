@@ -33,7 +33,9 @@ Options
   - WEBMENTION_IO_CACHE_FILENAME = './webmention-cache/cache.json'
 
 - WEBMENTION_IO_DOMAIN = 'Replace by the hostname of your website here, no need to put https://'
-- WEBMENTION_IO_UPDATE_CACHE = True
+- WEBMENTION_IO_OVERWRITE_INITIAL_CACHE = False - Overwrite initial cache file
+- WEBMENTION_IO_UPDATE_INITIAL_CACHE = True - Update initial cache file
+- WEBMENTION_IO_REPLIED_PAGINATION_SIZE - For paging replies, WIP
 
 Sample template
 ---------------
