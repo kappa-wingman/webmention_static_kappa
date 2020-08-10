@@ -48,9 +48,12 @@ def initialize_module(pelican):
 def update_cache ():
     try:
         ##https://webmention.io/api/mentions.jf2?target=
+        # FIXME, if not specify per-page, it only get a few recent records for a domain
+        # Here, hardcoded to a large value but will have problem if the no of items get past this value
         response = urllib.request.urlopen(WEBMENTION_IO_JF2_URL
             + "?domain=" + WEBMENTION_IO_DOMAIN
-            + "&token=" + WEBMENTION_IO_API_KEY)
+            + "&token=" + WEBMENTION_IO_API_KEY
+            + "&per-page=9999")
         data = response.read().decode("utf-8")
         ##data = response.get()
         file = open(WEBMENTION_IO_CACHE_FILENAME, "w+")
