@@ -7,7 +7,7 @@ The output from that endpint should be in JF2 format.
 This plugin references multiple projects related to Webmentions and Pelican plugin:
 
 - `Gist from Stuart Langridge <https://gist.github.com/stuartlangridge/ef08d5e1737181e2bee7>`__
-- `pelican-webmention plugin by Desmond Rivet <https://github.com/drivet/pelican-webmentio>`__
+- `pelican-webmention plugin by Desmond Rivet <https://github.com/drivet/pelican-webmention>`__
 - `Webmention.js by Fluffy <https://github.com/PlaidWeb/webmention.js/blob/master/static/webmention.js>`__
 - `Mention Tech by Kevin Marks <https://github.com/kevinmarks/mentiontech>`__
 - `Pelican Plugins <https://github.com/getpelican/pelican-plugins/>`__
